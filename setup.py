@@ -8,7 +8,7 @@ THe cloudstack provider for the avira.deploy tool.
 from setuptools import setup
 from setuptools import find_packages
 
-version = '1.1.8'
+version = '1.1.9'
 
 setup(
     name='avira.deployplugin.cloudstack',
