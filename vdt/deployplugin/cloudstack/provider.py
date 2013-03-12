@@ -1,13 +1,13 @@
 import subprocess
 from cloudstack.client import Client
-from avira.deploy import api, pretty
-from avira.deploy.clean import run_machine_cleanup, \
+from vdt.deploy import api, pretty
+from vdt.deploy.clean import run_machine_cleanup, \
     remove_machine_port_forwards, node_clean, clean_foreman
-from avira.deploy.userdata import UserData
-from avira.deploy.utils import find_by_key, \
+from vdt.deploy.userdata import UserData
+from vdt.deploy.utils import find_by_key, \
     find_machine, wrap, sort_by_key, is_puppetmaster, check_call_with_timeout
-from avira.deploy.certificate import add_pending_certificate
-from avira.deploy.config import cfg
+from vdt.deploy.certificate import add_pending_certificate
+from vdt.deploy.config import cfg
 
 __all__ = ('Provider',)
 

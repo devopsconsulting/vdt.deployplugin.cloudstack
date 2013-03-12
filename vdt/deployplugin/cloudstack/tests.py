@@ -8,12 +8,12 @@ import unittest
 from StringIO import StringIO
 from base64 import encodestring
 
-import avira.deployplugin.cloudstack.provider
-import avira.deploy.tool
+import vdt.deployplugin.cloudstack.provider
+import vdt.deploy.tool
 
-from avira.deploy.tests import testdata
-from avira.deploy.tests import mockconfig
-from avira.deploy.utils import StringCaster
+from vdt.deploy.tests import testdata
+from vdt.deploy.tests import mockconfig
+from vdt.deploy.utils import StringCaster
 
 
 class ProviderCloudstackTest(unittest.TestCase):
@@ -21,8 +21,8 @@ class ProviderCloudstackTest(unittest.TestCase):
     def setUp(self):
         reload(mockconfig)
         self.mockconfig = mockconfig.MockConfig
-        avira.deploy.tool.cfg = self.mockconfig
-        avira.deployplugin.cloudstack.provider.cfg = self.mockconfig
+        vdt.deploy.tool.cfg = self.mockconfig
+        vdt.deployplugin.cloudstack.provider.cfg = self.mockconfig
 
         self.saved_stdout = sys.stdout
         self.out = StringIO()
@@ -30,9 +30,9 @@ class ProviderCloudstackTest(unittest.TestCase):
         self.mox = mox.Mox()
         # Mock the Cloudstack client library
         self.mock_client = self.mox.CreateMock(cloudstack.client.Client)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider,
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider,
                                  "Client")
-        avira.deployplugin.cloudstack.provider.Client("apiurl",
+        vdt.deployplugin.cloudstack.provider.Client("apiurl",
                                  "apikey",
                                  "secret").AndReturn(self.mock_client)
        # and set some default userdata
@@ -52,7 +52,7 @@ class ProviderCloudstackTest(unittest.TestCase):
         self.mock_client.listVirtualMachines({'domainid': '1'}).\
                         AndReturn(testdata.listVirtualMachines_output)
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_status()
         output = self.out.getvalue()
         self.assertTrue("Running" in output and "testmachine1" in output)
@@ -63,7 +63,7 @@ class ProviderCloudstackTest(unittest.TestCase):
         self.mock_client.listVirtualMachines({'domainid': '1'}).\
                         AndReturn(testdata.listVirtualMachines_output)
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_status(all=True)
         output = self.out.getvalue()
         self.assertTrue("Stopped" in output and "testmachine2" in output)
@@ -71,7 +71,7 @@ class ProviderCloudstackTest(unittest.TestCase):
 
     def test_do_deploy_no_userdata(self):
         # test the output when we don't have any userdata
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_deploy("test")
         output = self.out.getvalue()
         self.assertEqual(output, testdata.do_deploy_no_userdata)
@@ -81,7 +81,7 @@ class ProviderCloudstackTest(unittest.TestCase):
         self.mock_client.listVirtualMachines({'domainid': '1'}).\
                         AndReturn(testdata.listVirtualMachines_output)
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_deploy("testmachine1", userdata={'role': 'test'})
         output = self.out.getvalue()
         self.assertEqual(output, testdata.do_deploy_duplicate)
@@ -104,13 +104,13 @@ class ProviderCloudstackTest(unittest.TestCase):
                                                'templateid': '1',
                                                'serviceofferingid': '1'}
                                                ).AndReturn(result)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider,
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider,
                                                     "add_pending_certificate")
-        avira.deployplugin.cloudstack.provider.add_pending_certificate(1113).\
+        vdt.deployplugin.cloudstack.provider.add_pending_certificate(1113).\
                                                               AndReturn(None)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_deploy("testmachine3", userdata={'role': 'test'})
         output = self.out.getvalue()
         self.assertEqual(output, testdata.do_deploy_output)
@@ -120,13 +120,13 @@ class ProviderCloudstackTest(unittest.TestCase):
         # test when we destroy a machine which does not exists
         self.mock_client.listVirtualMachines({'domainid': '1'}).\
                         AndReturn(testdata.listVirtualMachines_output)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "find_machine")
-        avira.deployplugin.cloudstack.provider.find_machine('1114',
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "find_machine")
+        vdt.deployplugin.cloudstack.provider.find_machine('1114',
                                        testdata.listVirtualMachines_output).\
                                        AndReturn(None)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_destroy('1114')
         output = self.out.getvalue()
         self.assertEqual(output, "No machine found with the id 1114\n")
@@ -137,15 +137,15 @@ class ProviderCloudstackTest(unittest.TestCase):
         machine = StringCaster({'id': '1112', 'name': 'testmachine2'})
         self.mock_client.listVirtualMachines({'domainid': '1'}).\
                         AndReturn(testdata.listVirtualMachines_output)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "find_machine")
-        avira.deployplugin.cloudstack.provider.find_machine(machine.id,
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "find_machine")
+        vdt.deployplugin.cloudstack.provider.find_machine(machine.id,
                                        testdata.listVirtualMachines_output).\
                                        AndReturn(machine)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "is_puppetmaster")
-        avira.deployplugin.cloudstack.provider.is_puppetmaster(machine.id).AndReturn(True)
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "is_puppetmaster")
+        vdt.deployplugin.cloudstack.provider.is_puppetmaster(machine.id).AndReturn(True)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_destroy(machine.id)
         output = self.out.getvalue()
         self.assertEqual(output,
@@ -158,33 +158,33 @@ class ProviderCloudstackTest(unittest.TestCase):
         machine = StringCaster({'id': '1112', 'name': 'testmachine2'})
         self.mock_client.listVirtualMachines({'domainid': '1'}).\
                         AndReturn(testdata.listVirtualMachines_output)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "find_machine")
-        avira.deployplugin.cloudstack.provider.find_machine(machine.id,
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "find_machine")
+        vdt.deployplugin.cloudstack.provider.find_machine(machine.id,
                                        testdata.listVirtualMachines_output).\
                                        AndReturn(machine)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "is_puppetmaster")
-        avira.deployplugin.cloudstack.provider.is_puppetmaster(machine.id).AndReturn(False)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "run_machine_cleanup")
-        avira.deployplugin.cloudstack.provider.run_machine_cleanup(machine).\
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "is_puppetmaster")
+        vdt.deployplugin.cloudstack.provider.is_puppetmaster(machine.id).AndReturn(False)
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "run_machine_cleanup")
+        vdt.deployplugin.cloudstack.provider.run_machine_cleanup(machine).\
                             AndReturn(testdata.run_machine_cleanup_output())
 
         self.mock_client.destroyVirtualMachine({'id': machine.id}).\
                         AndReturn("Destroying machine with id %s" % machine.id)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider,
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider,
                                  "remove_machine_port_forwards")
 
-        avira.deployplugin.cloudstack.provider.remove_machine_port_forwards(machine,
+        vdt.deployplugin.cloudstack.provider.remove_machine_port_forwards(machine,
                     self.mock_client).\
                     AndReturn(testdata.remove_machine_port_forwards_output())
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "node_clean")
-        avira.deployplugin.cloudstack.provider.node_clean(machine).\
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "node_clean")
+        vdt.deployplugin.cloudstack.provider.node_clean(machine).\
                                         AndReturn(testdata.node_clean_output())
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "clean_foreman")
-        avira.deployplugin.cloudstack.provider.clean_foreman().\
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "clean_foreman")
+        vdt.deployplugin.cloudstack.provider.clean_foreman().\
                                     AndReturn(testdata.clean_foreman_output())
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_destroy(machine.id)
         output = self.out.getvalue()
         self.assertTrue(output,
@@ -206,13 +206,13 @@ class ProviderCloudstackTest(unittest.TestCase):
         # start a machine that does not exist
         self.mock_client.listVirtualMachines({'domainid': '1'}).\
                         AndReturn(testdata.listVirtualMachines_output)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "find_machine")
-        avira.deployplugin.cloudstack.provider.find_machine('1114',
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "find_machine")
+        vdt.deployplugin.cloudstack.provider.find_machine('1114',
                                        testdata.listVirtualMachines_output).\
                                        AndReturn(None)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_start('1114')
         output = self.out.getvalue()
         self.assertEqual(output, "machine with id 1114 is not found\n")
@@ -226,13 +226,13 @@ class ProviderCloudstackTest(unittest.TestCase):
         self.mock_client.startVirtualMachine(machine).\
                         AndReturn({u'jobid': 1})
 
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "find_machine")
-        avira.deployplugin.cloudstack.provider.find_machine('1112',
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "find_machine")
+        vdt.deployplugin.cloudstack.provider.find_machine('1112',
                                        testdata.listVirtualMachines_output).\
                                        AndReturn(machine)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_start('1112')
         output = self.out.getvalue()
         self.assertEqual(output, "starting machine with id 1112\n")
@@ -242,13 +242,13 @@ class ProviderCloudstackTest(unittest.TestCase):
         # stop a machine which does not exist
         self.mock_client.listVirtualMachines({'domainid': '1'}).\
                         AndReturn(testdata.listVirtualMachines_output)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "find_machine")
-        avira.deployplugin.cloudstack.provider.find_machine('1114',
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "find_machine")
+        vdt.deployplugin.cloudstack.provider.find_machine('1114',
                                        testdata.listVirtualMachines_output).\
                                        AndReturn(None)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_stop('1114')
         output = self.out.getvalue()
         self.assertEqual(output, "machine with id 1114 is not found\n")
@@ -262,13 +262,13 @@ class ProviderCloudstackTest(unittest.TestCase):
         self.mock_client.stopVirtualMachine(machine).\
                         AndReturn({u'jobid': 1})
 
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "find_machine")
-        avira.deployplugin.cloudstack.provider.find_machine('1111',
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "find_machine")
+        vdt.deployplugin.cloudstack.provider.find_machine('1111',
                                        testdata.listVirtualMachines_output).\
                                        AndReturn(machine)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_stop('1111')
         output = self.out.getvalue()
         self.assertEqual(output, "stopping machine with id 1111\n")
@@ -278,13 +278,13 @@ class ProviderCloudstackTest(unittest.TestCase):
         # reboot a machine which does not exist
         self.mock_client.listVirtualMachines({'domainid': '1'}).\
                         AndReturn(testdata.listVirtualMachines_output)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "find_machine")
-        avira.deployplugin.cloudstack.provider.find_machine('1113',
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "find_machine")
+        vdt.deployplugin.cloudstack.provider.find_machine('1113',
                                        testdata.listVirtualMachines_output).\
                                        AndReturn(None)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_reboot('1113')
         output = self.out.getvalue()
         self.assertEqual(output, "machine with id 1113 is not found\n")
@@ -298,13 +298,13 @@ class ProviderCloudstackTest(unittest.TestCase):
         self.mock_client.rebootVirtualMachine(machine).\
                         AndReturn({u'jobid': 1})
 
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "find_machine")
-        avira.deployplugin.cloudstack.provider.find_machine('1111',
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "find_machine")
+        vdt.deployplugin.cloudstack.provider.find_machine('1111',
                                        testdata.listVirtualMachines_output).\
                                        AndReturn(machine)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_reboot('1111')
         output = self.out.getvalue()
         self.assertEqual(output, "rebooting machine with id 1111\n")
@@ -312,7 +312,7 @@ class ProviderCloudstackTest(unittest.TestCase):
 
     def test_list_unknown(self):
         # test that we show a correct message when a list command is not there
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_list("unknown directive")
         output = self.out.getvalue()
         self.assertEqual(output, "Not implemented\n")
@@ -325,7 +325,7 @@ class ProviderCloudstackTest(unittest.TestCase):
                         }).AndReturn(testdata.list_templates_output)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_list("templates")
         output = self.out.getvalue()
         self.assertEqual(output, testdata.do_list_templates_output)
@@ -337,7 +337,7 @@ class ProviderCloudstackTest(unittest.TestCase):
                         AndReturn(testdata.list_serviceofferings_output)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_list("serviceofferings")
         output = self.out.getvalue()
         self.assertEqual(output, testdata.do_list_serviceofferings_output)
@@ -349,7 +349,7 @@ class ProviderCloudstackTest(unittest.TestCase):
                         AndReturn(testdata.list_diskofferings_output)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_list("diskofferings")
         output = self.out.getvalue()
         self.assertEqual(output, testdata.do_list_diskofferings_output)
@@ -361,7 +361,7 @@ class ProviderCloudstackTest(unittest.TestCase):
                     AndReturn(testdata.list_public_ip_output)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_list("ip")
         output = self.out.getvalue()
         self.assertEqual(output, testdata.do_list_ip_output)
@@ -373,7 +373,7 @@ class ProviderCloudstackTest(unittest.TestCase):
                                     AndReturn(testdata.list_networks_output)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_list("networks")
         output = self.out.getvalue()
         self.assertTrue("testnetwork" in output)
@@ -386,7 +386,7 @@ class ProviderCloudstackTest(unittest.TestCase):
                                 AndReturn(testdata.list_portforwardings_output)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_list("portforwardings")
         output = self.out.getvalue()
         self.assertTrue("22001" in output)
@@ -394,7 +394,7 @@ class ProviderCloudstackTest(unittest.TestCase):
 
     def test_request_unknown(self):
         # test the request command with an unkown directive
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_request("unknown directive")
         output = self.out.getvalue()
         self.assertEqual(output, "Not implemented\n")
@@ -406,7 +406,7 @@ class ProviderCloudstackTest(unittest.TestCase):
                                     AndReturn({u'id': 1, u'jobid': 1})
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_request("ip")
         output = self.out.getvalue()
         self.assertEqual(output, "created ip address with id 1\n")
@@ -414,7 +414,7 @@ class ProviderCloudstackTest(unittest.TestCase):
 
     def test_release_unknown(self):
         # test the release command with an unkown directive
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_release("unknown directive", "unkown value")
         output = self.out.getvalue()
         self.assertEqual(output, "Not implemented\n")
@@ -425,7 +425,7 @@ class ProviderCloudstackTest(unittest.TestCase):
                                     AndReturn({u'jobid': 1})
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_release("ip", "1")
         output = self.out.getvalue()
         self.assertEqual(output, "releasing ip address, job id: 1\n")
@@ -442,7 +442,7 @@ class ProviderCloudstackTest(unittest.TestCase):
                         }).AndReturn({u'id': 1, u'jobid': 1})
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_portfw("1111", "1", "1111", "1111")
         output = self.out.getvalue()
         self.assertEqual(output,
@@ -453,13 +453,13 @@ class ProviderCloudstackTest(unittest.TestCase):
         # create an ssh portforwarding for a machine which does not exist
         self.mock_client.listVirtualMachines({'domainid': '1'}).\
                         AndReturn(testdata.listVirtualMachines_output)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "find_machine")
-        avira.deployplugin.cloudstack.provider.find_machine('1114',
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "find_machine")
+        vdt.deployplugin.cloudstack.provider.find_machine('1114',
                                        testdata.listVirtualMachines_output).\
                                        AndReturn(None)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_ssh('1114', '22001')
         output = self.out.getvalue()
         self.assertEqual(output, "machine with id 1114 is not found\n")
@@ -472,15 +472,15 @@ class ProviderCloudstackTest(unittest.TestCase):
                         AndReturn(testdata.listVirtualMachines_output)
         self.mock_client.listPortForwardingRules().\
                                 AndReturn(testdata.list_portforwardings_output)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "find_machine")
-        avira.deployplugin.cloudstack.provider.find_machine(machine.id,
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "find_machine")
+        vdt.deployplugin.cloudstack.provider.find_machine(machine.id,
                                        testdata.listVirtualMachines_output).\
                                        AndReturn(machine)
         self.mock_client.listPublicIpAddresses().\
                     AndReturn(testdata.list_public_ip_output)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_ssh('1111', '22001')
         output = self.out.getvalue()
         self.assertEqual(output, testdata.ssh_exists)
@@ -493,8 +493,8 @@ class ProviderCloudstackTest(unittest.TestCase):
                         AndReturn(testdata.listVirtualMachines_output)
         self.mock_client.listPortForwardingRules().\
                                 AndReturn(testdata.list_portforwardings_output)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "find_machine")
-        avira.deployplugin.cloudstack.provider.find_machine(machine.id,
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "find_machine")
+        vdt.deployplugin.cloudstack.provider.find_machine(machine.id,
                                        testdata.listVirtualMachines_output).\
                                        AndReturn(machine)
         self.mock_client.listPublicIpAddresses().\
@@ -509,7 +509,7 @@ class ProviderCloudstackTest(unittest.TestCase):
                         }).AndReturn({u'id': 1, u'jobid': 1})
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_ssh('1112', '22001')
         output = self.out.getvalue()
         self.assertEqual(output,
@@ -520,13 +520,13 @@ class ProviderCloudstackTest(unittest.TestCase):
         # test the kick command for machines with a specific role
         KICK_CMD = ['mco', "puppetd", "runonce", "-F", "role=test"]
 
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "subprocess")
-        avira.deployplugin.cloudstack.provider.subprocess.check_output(KICK_CMD,
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "subprocess")
+        vdt.deployplugin.cloudstack.provider.subprocess.check_output(KICK_CMD,
                                             stderr=subprocess.STDOUT).\
                                             AndReturn(testdata.kick_output)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_kick(role='test')
         output = self.out.getvalue()
         self.assertEqual(output, testdata.kick_output + '\n')
@@ -536,13 +536,13 @@ class ProviderCloudstackTest(unittest.TestCase):
         # test that we catch the exception
         KICK_CMD = ['mco', "puppetd", "runonce", "-F", "role=test"]
 
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "subprocess")
-        avira.deployplugin.cloudstack.provider.subprocess.check_output(KICK_CMD,
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "subprocess")
+        vdt.deployplugin.cloudstack.provider.subprocess.check_output(KICK_CMD,
                     stderr=subprocess.STDOUT).\
                     AndRaise(subprocess.CalledProcessError("", ""))
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.assertRaises(subprocess.CalledProcessError,
                           self.client.do_kick,
                           role='test'
@@ -553,16 +553,16 @@ class ProviderCloudstackTest(unittest.TestCase):
         # test that we cannot kick a machine which is not there
         machine = StringCaster({'id': '1114', 'name': 'testmachine4'})
 
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "subprocess")
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "subprocess")
         self.mock_client.listVirtualMachines({'domainid': '1'}).\
                         AndReturn(testdata.listVirtualMachines_output)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "find_machine")
-        avira.deployplugin.cloudstack.provider.find_machine(machine.id,
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "find_machine")
+        vdt.deployplugin.cloudstack.provider.find_machine(machine.id,
                                        testdata.listVirtualMachines_output).\
                                        AndReturn(None)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_kick(machine_id=machine.id)
         output = self.out.getvalue()
         self.assertEqual(output, "machine with id 1114 is not found\n")
@@ -573,19 +573,19 @@ class ProviderCloudstackTest(unittest.TestCase):
         machine = StringCaster({'id': '1111', 'name': 'testmachine1'})
         KICK_CMD = ['mco', "puppetd", "runonce", "-F", "hostname=testmachine1"]
 
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "subprocess")
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "subprocess")
         self.mock_client.listVirtualMachines({'domainid': '1'}).\
                         AndReturn(testdata.listVirtualMachines_output)
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider, "find_machine")
-        avira.deployplugin.cloudstack.provider.find_machine(machine.id,
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider, "find_machine")
+        vdt.deployplugin.cloudstack.provider.find_machine(machine.id,
                                        testdata.listVirtualMachines_output).\
                                        AndReturn(machine)
-        avira.deployplugin.cloudstack.provider.subprocess.check_output(KICK_CMD,
+        vdt.deployplugin.cloudstack.provider.subprocess.check_output(KICK_CMD,
                                             stderr=subprocess.STDOUT).\
                                             AndReturn(testdata.kick_output)
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_kick(machine_id=machine.id)
         output = self.out.getvalue()
         self.assertEqual(output, testdata.kick_output + '\n')
@@ -593,18 +593,18 @@ class ProviderCloudstackTest(unittest.TestCase):
 
     def test_quit(self):
         # just a test to make sure this method is called
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.assertEqual(self.client.do_quit(), True)
 
     def test_mco(self):
         # test the mco command
-        self.mox.StubOutWithMock(avira.deployplugin.cloudstack.provider,
+        self.mox.StubOutWithMock(vdt.deployplugin.cloudstack.provider,
                                                     "check_call_with_timeout")
-        avira.deployplugin.cloudstack.provider.check_call_with_timeout(['mco'], 5).\
+        vdt.deployplugin.cloudstack.provider.check_call_with_timeout(['mco'], 5).\
                                     AndReturn(testdata.mco_output())
 
         self.mox.ReplayAll()
-        self.client = avira.deployplugin.cloudstack.provider.Provider()
+        self.client = vdt.deployplugin.cloudstack.provider.Provider()
         self.client.do_mco()
         output = self.out.getvalue()
         self.assertEqual(output, "mco output\n")

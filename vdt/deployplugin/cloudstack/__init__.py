@@ -1,2 +1,2 @@
-from avira.deployplugin.cloudstack.config import template
-from avira.deployplugin.cloudstack.provider import Provider
+from vdt.deployplugin.cloudstack.config import template
+from vdt.deployplugin.cloudstack.provider import Provider
