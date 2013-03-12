@@ -1,4 +1,4 @@
-avira.deployplugin.cloudstack
-=============================
+vdt.deployplugin.cloudstack
+===========================
 
-cloudstack provider for avira.deploy
+Cloudstack provider for vdt.deploy. This provider will use cloudstack for creating vm's.
